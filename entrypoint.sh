@@ -143,17 +143,30 @@ if [ "$HAS_DATASET" = true ]; then
     -F "file=@${DATASET}" \
     -F "agent_endpoint=${AGENT_URL}" \
     -F "agent_format=${AGENT_FORMAT}" \
+    -F "agent_auth_type=${AGENT_AUTH_TYPE:-none}" \
+    -F "agent_auth_header_name=${AGENT_AUTH_HEADER:-}" \
+    -F "agent_auth_token=${AGENT_AUTH_TOKEN:-}" \
     -F "metrics=${METRICS}" 2>&1) || true
 
 else
   # ── Inline rows mode ──
   info "Using inline rows"
 
-  # Build agent config JSON
-  AGENT_JSON=$(jq -n --arg url "$AGENT_URL" --arg fmt "$AGENT_FORMAT" '{
-    url: $url,
-    format: $fmt
-  }')
+  # Build agent config JSON (with auth if provided)
+  AGENT_JSON=$(jq -n \
+    --arg url "$AGENT_URL" \
+    --arg fmt "$AGENT_FORMAT" \
+    --arg auth_type "${AGENT_AUTH_TYPE:-}" \
+    --arg auth_header "${AGENT_AUTH_HEADER:-}" \
+    --arg auth_token "${AGENT_AUTH_TOKEN:-}" \
+    '{
+      url: $url,
+      format: $fmt
+    } + if $auth_type != "" and $auth_type != "none" then {
+      auth_type: $auth_type,
+      auth_header_name: (if $auth_header != "" then $auth_header else null end),
+      auth_token: (if $auth_token != "" then $auth_token else null end)
+    } | with_entries(select(.value != null)) else {} end')
 
   # Build request body
   REQUEST_BODY=$(jq -n \
