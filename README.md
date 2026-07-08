@@ -82,6 +82,34 @@ jobs:
 
 ---
 
+## Agent Authentication
+
+If your agent requires a Bearer token or API key:
+
+```yaml
+- uses: aievaluator-dev/ai-evaluator-action@v1
+  with:
+    api-key: ${{ secrets.AI_EVALUATOR_API_KEY }}
+    agent-url: ${{ vars.STAGING_AGENT_URL }}
+    agent-auth-type: bearer
+    agent-auth-token: ${{ secrets.AGENT_BEARER_TOKEN }}
+    dataset: ./evals/regression.json
+```
+
+For API key auth:
+
+```yaml
+- uses: aievaluator-dev/ai-evaluator-action@v1
+  with:
+    api-key: ${{ secrets.AI_EVALUATOR_API_KEY }}
+    agent-url: ${{ vars.STAGING_AGENT_URL }}
+    agent-auth-type: api_key
+    agent-auth-header: X-API-Key
+    agent-auth-token: ${{ secrets.AGENT_API_KEY }}
+```
+
+Supported auth types: `none` (default), `api_key`, `bearer`. When `agent-auth-header` is empty, the action auto-detects the correct header (`Authorization` for Bearer, `X-API-Key` for API key).
+
 ## Custom Evaluators
 
 Define your own metrics inline — no need to create them in the UI first:

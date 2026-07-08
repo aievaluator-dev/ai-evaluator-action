@@ -24,6 +24,8 @@ jobs:
         with:
           api-key: ${{ secrets.AI_EVALUATOR_API_KEY }}
           agent-url: ${{ vars.STAGING_AGENT_URL }}
+          agent-auth-type: bearer
+          agent-auth-token: ${{ secrets.AGENT_BEARER_TOKEN }}
           dataset: ./evals/regression.json
           metrics: g_eval,faithfulness,hallucination
           min-score: 0.80
